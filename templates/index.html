@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CCNA MOCK EXAM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='6' width='12' height='6' fill='%2300e08f'/><rect x='5' y='3' width='6' height='3' fill='%2300e08f'/></svg>">
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="stars" aria-hidden="true"></div>
+
+  <main id="app">
+
+    <!-- ============ PANTALLA DE INICIO ============ -->
+    <section id="screen-start" class="screen active">
+      <div class="pixel-router" aria-hidden="true">
+        <div class="router-body">
+          <span class="led led-1"></span><span class="led led-2"></span><span class="led led-3"></span>
+        </div>
+        <div class="antenna antenna-l"></div>
+        <div class="antenna antenna-r"></div>
+      </div>
+
+      <h1 class="title">CCNA<br><span class="title-sub">MOCK EXAM</span></h1>
+      <p class="tagline">&gt;&gt; 100 preguntas esenciales 200-301 &lt;&lt;</p>
+
+      <div class="pixel-box start-form">
+        <label class="form-label" for="player-name">JUGADOR</label>
+        <input id="player-name" class="pixel-input" type="text" maxlength="12"
+               placeholder="AAA" autocomplete="off" spellcheck="false">
+
+        <label class="form-label">PREGUNTAS</label>
+        <div class="count-picker" role="radiogroup" aria-label="Cantidad de preguntas">
+          <button class="count-btn" data-count="10">10</button>
+          <button class="count-btn selected" data-count="25">25</button>
+          <button class="count-btn" data-count="50">50</button>
+          <button class="count-btn" data-count="100">100</button>
+        </div>
+
+        <button id="btn-start" class="pixel-btn btn-primary blink-slow">&#9654; PRESS START</button>
+      </div>
+
+      <div class="pixel-box highscores">
+        <h2 class="box-title">&#9733; HIGH SCORES &#9733;</h2>
+        <ol id="highscore-list" class="score-list"><li class="score-empty">SIN REGISTROS...</li></ol>
+      </div>
+      <p class="footer-note">aprobado &ge; 825/1000 &middot; hecho con &#9829; para futuros CCNA</p>
+    </section>
+
+    <!-- ============ PANTALLA DE EXAMEN ============ -->
+    <section id="screen-exam" class="screen">
+      <header class="exam-hud pixel-box">
+        <div class="hud-item"><span class="hud-label">Q</span> <span id="hud-progress">1/25</span></div>
+        <div class="hud-item hud-domain" id="hud-domain">FUNDAMENTOS</div>
+        <div class="hud-item hud-timer">
+          <span class="hud-label">&#9200;</span> <span id="hud-time">00:00</span>
+        </div>
+      </header>
+      <div class="hp-bar"><div id="time-fill" class="hp-fill"></div></div>
+
+      <div class="pixel-box question-card" id="question-card">
+        <p id="question-text" class="question-text"></p>
+        <div id="options" class="options"></div>
+      </div>
+
+      <nav class="exam-nav">
+        <button id="btn-prev" class="pixel-btn btn-ghost">&#9664; ANTERIOR</button>
+        <div id="dots" class="dots" aria-hidden="true"></div>
+        <button id="btn-next" class="pixel-btn btn-primary">SIGUIENTE &#9654;</button>
+      </nav>
+      <button id="btn-finish" class="pixel-btn btn-danger btn-finish hidden">&#9632; TERMINAR EXAMEN</button>
+    </section>
+
+    <!-- ============ PANTALLA DE RESULTADOS ============ -->
+    <section id="screen-results" class="screen">
+      <div id="confetti" aria-hidden="true"></div>
+      <h2 id="result-banner" class="result-banner"></h2>
+
+      <div class="pixel-box result-score">
+        <div class="score-big"><span id="score-scaled">0</span><span class="score-max">/1000</span></div>
+        <p class="score-detail"><span id="score-correct"></span> correctas &middot; <span id="score-pct"></span></p>
+        <div class="hp-bar score-bar"><div id="score-fill" class="hp-fill"></div><div class="pass-mark" title="corte 825"></div></div>
+      </div>
+
+      <div class="pixel-box">
+        <h3 class="box-title">ANÁLISIS POR DOMINIO</h3>
+        <div id="domain-analysis" class="domain-analysis"></div>
+      </div>
+
+      <div class="pixel-box">
+        <h3 class="box-title">REVISIÓN DE RESPUESTAS</h3>
+        <div class="review-filter">
+          <button class="count-btn selected" data-filter="all">TODAS</button>
+          <button class="count-btn" data-filter="wrong">FALLADAS</button>
+          <button class="count-btn" data-filter="right">CORRECTAS</button>
+        </div>
+        <div id="review-list" class="review-list"></div>
+      </div>
+
+      <div class="result-actions">
+        <button id="btn-retry" class="pixel-btn btn-primary">&#8635; REINTENTAR</button>
+        <button id="btn-home" class="pixel-btn btn-ghost">&#8962; INICIO</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='game.js') }}"></script>
+</body>
+</html>
