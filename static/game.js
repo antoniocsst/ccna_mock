@@ -31,6 +31,9 @@
     count: 25,
     mode: "general",   // 'general' | 'topic'
     domain: null,      // nombre del dominio cuando mode === 'topic'
+    play: "exam",      // 'exam' | 'practice'
+    practice: false,   // reflejo de la respuesta del servidor
+    feedback: [],      // en práctica: {ok, correct, e} por pregunta ya respondida
     review: [],
     domains: [],       // [{name, count}] desde /api/meta
     total: 100,
@@ -118,12 +121,26 @@
     refreshCountButtons();
   }
 
+  // Selector de juego (examen cronometrado vs práctica con feedback)
+  $$(".play-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $$(".play-btn").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.play = btn.dataset.play;
+      $("#play-hint").textContent = state.play === "practice"
+        ? "» sin tiempo · corrige al instante y explica · no puntúa"
+        : "» examen cronometrado · puntúa en el ranking";
+    });
+  });
+
   // Construye los botones de tópico desde /api/meta
   async function loadMeta() {
     try {
       const data = await (await fetch("/api/meta")).json();
       state.domains = data.domains;
       state.total = data.total;
+      const tag = $(".tagline");
+      if (tag) tag.innerHTML = `&gt;&gt; ${data.total} preguntas esenciales 200-301 &lt;&lt;`;
       const picker = $("#topic-picker");
       picker.innerHTML = "";
       data.domains.forEach((d) => {
@@ -192,18 +209,30 @@
         body: JSON.stringify({
           count: state.count,
           domain: state.mode === "topic" ? state.domain : null,
+          practice: state.play === "practice",
         }),
       });
       const data = await res.json();
       state.examId = data.exam_id;
+      state.practice = !!data.practice;
       state.questions = data.questions;
       state.answers = new Array(data.questions.length).fill(null);
+      state.feedback = new Array(data.questions.length).fill(null);
       state.current = 0;
       state.timeLimit = data.time_limit;
       state.timeLeft = data.time_limit;
       buildDots();
       renderQuestion();
-      startTimer();
+      if (state.practice) {
+        // sin cronómetro: barra llena y reloj en infinito
+        clearInterval(state.timerId);
+        $(".hud-timer").classList.remove("low");
+        $("#hud-time").textContent = "∞";
+        const fill = $("#time-fill");
+        fill.className = "hp-fill"; fill.style.width = "100%";
+      } else {
+        startTimer();
+      }
       showScreen("#screen-exam");
     } catch (err) {
       alert("No se pudo iniciar el examen. ¿Está corriendo el servidor?");
@@ -270,22 +299,34 @@
     hudDomain.style.color = domainColor(q.d);
     $("#question-text").textContent = q.q;
 
+    const fb = state.feedback[state.current];   // en práctica: null hasta responder
+    const picked = state.answers[state.current];
     const opts = $("#options");
     opts.innerHTML = "";
     q.o.forEach((text, i) => {
       const b = document.createElement("button");
-      b.className = "option" + (state.answers[state.current] === i ? " picked" : "");
+      let cls = "option" + (picked === i ? " picked" : "");
+      if (fb) {  // práctica ya respondida: revela correcta/incorrecta
+        if (i === fb.correct) cls += " correct";
+        else if (i === picked) cls += " wrong";
+      }
+      b.className = cls;
       b.innerHTML = `<span class="opt-key">${OPTION_KEYS[i]}&gt;</span><span>${escapeHtml(text)}</span>`;
-      b.addEventListener("click", () => {
-        state.answers[state.current] = i;
-        renderQuestion();
-        // pequeño delay para que se vea la selección antes de avanzar
-        if (state.current < state.questions.length - 1) {
-          setTimeout(() => { state.current += 1; renderQuestion(); }, 350);
-        }
-      });
+      if (!fb) b.addEventListener("click", () => onPick(i));  // bloqueado tras responder en práctica
       opts.appendChild(b);
     });
+
+    // panel de feedback (solo modo práctica)
+    const fbBox = $("#practice-feedback");
+    if (fb) {
+      fbBox.classList.remove("hidden");
+      const v = $("#feedback-verdict");
+      v.textContent = fb.ok ? "✔ ¡CORRECTO!" : "✘ INCORRECTO";
+      v.className = "feedback-verdict " + (fb.ok ? "good" : "bad");
+      $("#feedback-exp").textContent = fb.e;
+    } else {
+      fbBox.classList.add("hidden");
+    }
 
     $("#btn-prev").disabled = state.current === 0;
     const last = state.current === state.questions.length - 1;
@@ -293,6 +334,36 @@
     const allAnswered = state.answers.every((a) => a !== null);
     $("#btn-finish").classList.toggle("hidden", !(last || allAnswered));
     updateDots();
+  }
+
+  // Selección de una opción: en examen avanza solo; en práctica corrige al instante.
+  function onPick(i) {
+    if (state.practice) {
+      if (state.feedback[state.current]) return;   // ya respondida: bloqueada
+      state.answers[state.current] = i;
+      checkPractice(state.current, i);
+    } else {
+      state.answers[state.current] = i;
+      renderQuestion();
+      if (state.current < state.questions.length - 1) {
+        setTimeout(() => { state.current += 1; renderQuestion(); }, 350);
+      }
+    }
+  }
+
+  async function checkPractice(index, answer) {
+    try {
+      const res = await fetch("/api/exam/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ exam_id: state.examId, index: index, answer: answer }),
+      });
+      const data = await res.json();
+      state.feedback[index] = { ok: data.ok, correct: data.correct, e: data.e };
+    } catch (_) {
+      state.feedback[index] = { ok: false, correct: answer, e: "(sin conexión con el servidor)" };
+    }
+    renderQuestion();
   }
 
   $("#btn-prev").addEventListener("click", () => { if (state.current > 0) { state.current -= 1; renderQuestion(); } });
@@ -336,7 +407,11 @@
   function renderResults(data, timeout) {
     const banner = $("#result-banner");
     banner.className = "result-banner " + (data.passed ? "pass" : "fail");
-    banner.textContent = data.passed ? "★ APROBADO ★" : (timeout ? "⏰ TIEMPO AGOTADO" : "GAME OVER");
+    if (data.practice) {
+      banner.textContent = data.passed ? "★ PRÁCTICA OK ★" : "▸ PRÁCTICA COMPLETA";
+    } else {
+      banner.textContent = data.passed ? "★ APROBADO ★" : (timeout ? "⏰ TIEMPO AGOTADO" : "GAME OVER");
+    }
 
     $("#score-scaled").textContent = data.scaled;
     $("#score-correct").textContent = `${data.correct}/${data.total}`;

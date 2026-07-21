@@ -6,11 +6,13 @@ el análisis de resultados; el navegador solo pinta el juego.
 
 ## Características
 
-- **Banco de 100 preguntas esenciales** distribuidas según los pesos del blueprint oficial:
-  Fundamentos de Red (20), Acceso a la Red (20), Conectividad IP (25), Servicios IP (10),
-  Seguridad (15) y Automatización (10).
-- **Dos modos**: examen **general** (mezcla los 6 dominios) o **por tópico** (practica
-  un solo dominio); la cantidad de preguntas se ajusta a lo disponible en cada caso.
+- **Banco de 167 preguntas** alineadas al temario oficial **CCNA 200-301 v1.1**,
+  cubriendo los 6 dominios (incluye temas nuevos de la v1.1 como IA/ML en operaciones
+  de red, Terraform y overlay/underlay/fabric).
+- **Dos modos de temario**: examen **general** (mezcla los 6 dominios) o **por tópico**
+  (practica un solo dominio); la cantidad de preguntas se ajusta a lo disponible.
+- **Dos modos de juego**: **examen** cronometrado que puntúa en el ranking, o
+  **práctica** sin tiempo con corrección y explicación al instante (no puntúa).
 - **Exámenes que varían**: cada intento toma una muestra aleatoria (10 / 25 / 50 / 100
   preguntas) y además baraja el orden de las opciones.
 - **Puntaje estilo Cisco**: escala 0–1000 con corte de aprobación en 825.
@@ -72,7 +74,7 @@ ni configurar nada.
 
 ```
 app.py              # servidor Flask: sesiones de examen, calificación, historial
-questions.py        # banco de 100 preguntas (dominio, opciones, correcta, explicación)
+questions.py        # banco de 167 preguntas (dominio, opciones, correcta, explicación)
 templates/index.html
 static/style.css    # tema pixel art
 static/game.js      # navegación del examen y render de resultados

@@ -115,15 +115,16 @@ body {
 .count-btn.disabled:hover { color: var(--dim); border-color: var(--border); }
 .count-hint { font-size: .52rem; color: var(--dim); margin-top: -2px; }
 
-/* ---- selector de modo (general / por tópico) ---- */
+/* ---- selector de modo (general / por tópico) y de juego (examen / práctica) ---- */
 .mode-picker { display: flex; gap: 10px; flex-wrap: wrap; }
-.mode-btn {
+.mode-btn, .play-btn {
   flex: 1; min-width: 140px; font-family: inherit; font-size: .62rem; cursor: pointer;
   background: #0a0b1c; color: var(--dim);
   border: var(--px) solid var(--border); padding: 12px 10px;
 }
-.mode-btn:hover { color: var(--text); border-color: var(--yellow); }
-.mode-btn.selected { background: var(--yellow); color: #0a0b1c; border-color: var(--yellow); }
+.mode-btn:hover, .play-btn:hover { color: var(--text); border-color: var(--yellow); }
+.mode-btn.selected, .play-btn.selected { background: var(--yellow); color: #0a0b1c; border-color: var(--yellow); }
+.play-btn.selected[data-play="practice"] { background: var(--purple); border-color: var(--purple); color: #0a0b1c; }
 
 /* ---- selector de tópico ---- */
 .topic-block { display: flex; flex-direction: column; gap: 12px; animation: screen-in .3s steps(5); }
@@ -204,6 +205,19 @@ body {
 .option .opt-key { color: var(--yellow); flex-shrink: 0; }
 .option.picked { background: var(--cyan); color: #0a0b1c; border-color: var(--cyan); }
 .option.picked .opt-key { color: #0a0b1c; }
+/* feedback inmediato (modo práctica) */
+.option.correct { background: var(--green); color: #0a0b1c; border-color: var(--green); }
+.option.correct .opt-key { color: #0a0b1c; }
+.option.wrong { background: var(--red); color: #fff; border-color: var(--red); }
+.option.wrong .opt-key { color: #fff; }
+.option.correct:hover, .option.wrong:hover { transform: none; cursor: default; }
+
+.practice-feedback { margin-top: 18px; border-top: var(--px) dashed var(--border); padding-top: 16px; animation: screen-in .25s steps(4); }
+.practice-feedback.hidden { display: none; }
+.feedback-verdict { font-size: .8rem; margin-bottom: 10px; }
+.feedback-verdict.good { color: var(--green); }
+.feedback-verdict.bad { color: var(--red); }
+.feedback-exp { font-size: .62rem; line-height: 1.9; color: var(--dim); }
 
 /* ---- navegación ---- */
 .exam-nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 8px; }

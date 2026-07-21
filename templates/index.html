@@ -54,6 +54,13 @@
         </div>
         <p id="count-hint" class="count-hint"></p>
 
+        <label class="form-label">MODO DE JUEGO</label>
+        <div class="mode-picker" role="radiogroup" aria-label="Modo de juego">
+          <button class="play-btn selected" data-play="exam">&#9201; EXAMEN</button>
+          <button class="play-btn" data-play="practice">&#127891; PRÁCTICA</button>
+        </div>
+        <p id="play-hint" class="count-hint">» examen cronometrado &middot; puntúa en el ranking</p>
+
         <button id="btn-start" class="pixel-btn btn-primary blink-slow">&#9654; PRESS START</button>
       </div>
 
@@ -84,6 +91,10 @@
       <div class="pixel-box question-card" id="question-card">
         <p id="question-text" class="question-text"></p>
         <div id="options" class="options"></div>
+        <div id="practice-feedback" class="practice-feedback hidden">
+          <p id="feedback-verdict" class="feedback-verdict"></p>
+          <p id="feedback-exp" class="feedback-exp"></p>
+        </div>
       </div>
 
       <nav class="exam-nav">

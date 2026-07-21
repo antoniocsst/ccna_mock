@@ -75,8 +75,10 @@ def start_exam():
             "e": q["e"],
         })
 
+    practice = bool(data.get("practice"))
+
     exam_id = uuid.uuid4().hex
-    ACTIVE_EXAMS[exam_id] = exam_questions
+    ACTIVE_EXAMS[exam_id] = {"questions": exam_questions, "practice": practice}
     if len(ACTIVE_EXAMS) > 200:  # evita crecimiento sin límite en sesiones largas
         for key in list(ACTIVE_EXAMS)[:-100]:
             ACTIVE_EXAMS.pop(key, None)
@@ -84,11 +86,32 @@ def start_exam():
     return jsonify({
         "exam_id": exam_id,
         "domain": domain,           # None => examen general
+        "practice": practice,       # True => modo práctica (feedback inmediato)
         "time_limit": len(exam_questions) * SECONDS_PER_QUESTION,
         "questions": [
             {"d": q["d"], "q": q["q"], "o": q["o"]} for q in exam_questions
         ],
     })
+
+
+@app.route("/api/exam/check", methods=["POST"])
+def check_answer():
+    """Feedback inmediato de una pregunta. Solo disponible en modo práctica,
+    para no filtrar respuestas durante un examen cronometrado."""
+    data = request.get_json(silent=True) or {}
+    exam = ACTIVE_EXAMS.get(data.get("exam_id"))
+    if exam is None or not exam.get("practice"):
+        return jsonify({"error": "No disponible."}), 404
+
+    qs = exam["questions"]
+    index = data.get("index")
+    if not isinstance(index, int) or not (0 <= index < len(qs)):
+        return jsonify({"error": "Índice inválido."}), 400
+
+    q = qs[index]
+    answer = data.get("answer")
+    given = answer if isinstance(answer, int) and 0 <= answer < len(q["o"]) else None
+    return jsonify({"ok": given == q["a"], "correct": q["a"], "e": q["e"]})
 
 
 @app.route("/api/exam/submit", methods=["POST"])
@@ -98,9 +121,11 @@ def submit_exam():
     answers = data.get("answers", [])  # lista de índices (o null) por pregunta
     player = (data.get("player") or "ANON").strip()[:12].upper() or "ANON"
 
-    exam = ACTIVE_EXAMS.pop(exam_id, None)
-    if exam is None:
+    session = ACTIVE_EXAMS.pop(exam_id, None)
+    if session is None:
         return jsonify({"error": "Examen no encontrado o ya enviado."}), 404
+    exam = session["questions"]
+    practice = session.get("practice", False)
 
     review = []
     domain_stats = {d: {"correct": 0, "total": 0} for d in DOMAINS}
@@ -132,18 +157,21 @@ def submit_exam():
         for d, s in domain_stats.items() if s["total"] > 0
     ]
 
-    store.add_score({
-        "player": player,
-        "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "correct": correct_count,
-        "total": total,
-        "pct": pct,
-        "scaled": scaled,
-        "passed": passed,
-    })
+    # El modo práctica no puntúa en el ranking global.
+    if not practice:
+        store.add_score({
+            "player": player,
+            "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+            "correct": correct_count,
+            "total": total,
+            "pct": pct,
+            "scaled": scaled,
+            "passed": passed,
+        })
 
     return jsonify({
         "player": player,
+        "practice": practice,
         "correct": correct_count,
         "total": total,
         "pct": pct,
