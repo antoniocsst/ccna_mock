@@ -43,14 +43,27 @@ Alternativa manual (**New → Web Service**) si no usas el Blueprint:
 - **Build Command:** `pip install -r requirements.txt`
 - **Start Command:** `gunicorn app:app --workers 1 --timeout 60`
 
-> ⚠️ **Sobre los puntajes:** en el plan gratuito el disco es efímero, así que
-> `scores.json` se reinicia cada vez que el servicio se duerme o se redespliega.
-> Es normal para empezar. Para conservar el historial de forma permanente hay que
-> mover los puntajes a una base de datos (paso siguiente del proyecto); la ruta del
-> archivo ya es configurable con la variable de entorno `SCORES_FILE`.
-
 > ℹ️ El plan Free "duerme" el servicio tras ~15 min sin uso; la primera visita
 > después puede tardar ~30 s en despertar. Es esperable.
+
+## Puntajes permanentes con Postgres (gratis)
+
+En el plan Free de Render el disco es efímero, así que `scores.json` se borra al
+dormir o redesplegar. Para que el historial sea **permanente** la app puede usar
+una base de datos PostgreSQL gratuita (por ejemplo [Neon](https://neon.tech)):
+
+1. Crea una cuenta gratis en Neon y un proyecto (base de datos). No hace falta
+   crear tablas: la app crea la tabla `scores` sola al arrancar.
+2. Copia la **connection string** que te da Neon
+   (`postgresql://usuario:clave@host/db?sslmode=require`).
+3. En Render, dentro de tu servicio → **Environment** → añade una variable:
+   - **Key:** `DATABASE_URL`
+   - **Value:** la connection string de Neon
+4. Guarda. Render redespliega y a partir de ahí los puntajes se guardan en Postgres.
+
+**Cómo decide la app:** si existe `DATABASE_URL` usa PostgreSQL; si no, cae al
+archivo `scores.json` local. Así, en tu computadora sigue funcionando sin instalar
+ni configurar nada.
 
 ## Estructura
 
@@ -60,7 +73,8 @@ questions.py        # banco de 100 preguntas (dominio, opciones, correcta, expli
 templates/index.html
 static/style.css    # tema pixel art
 static/game.js      # navegación del examen y render de resultados
-scores.json         # historial de intentos (se crea automáticamente)
+store.py            # almacenamiento de puntajes: PostgreSQL o JSON según entorno
+scores.json         # historial local (se crea solo cuando no hay base de datos)
 render.yaml         # blueprint de despliegue en Render
 Procfile            # comando de arranque en producción (gunicorn)
 ```

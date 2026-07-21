@@ -4,7 +4,6 @@
 Python se encarga de: seleccionar y barajar las preguntas, calificar,
 guardar el historial de puntajes y generar el análisis por dominio.
 """
-import json
 import os
 import random
 import uuid
@@ -12,35 +11,21 @@ from datetime import datetime, timezone
 
 from flask import Flask, jsonify, render_template, request
 
+import store
 from questions import QUESTIONS, DOMAINS
 
 app = Flask(__name__)
 
-SCORES_FILE = os.environ.get(
-    "SCORES_FILE",
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), "scores.json"),
-)
 PASSING_PCT = 82.5          # aproximación al corte real del CCNA (825/1000)
 SECONDS_PER_QUESTION = 90   # ~120 min para ~100 preguntas en el examen real
+
+# Prepara el backend de puntajes: crea la tabla si se usa PostgreSQL
+# (DATABASE_URL); si no, se usará el archivo JSON local.
+store.init()
 
 # Sesiones de examen activas: exam_id -> lista de preguntas ya barajadas
 # (guardamos el índice correcto post-barajado para calificar en el servidor).
 ACTIVE_EXAMS = {}
-
-
-def load_scores():
-    if os.path.exists(SCORES_FILE):
-        try:
-            with open(SCORES_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, OSError):
-            return []
-    return []
-
-
-def save_scores(scores):
-    with open(SCORES_FILE, "w", encoding="utf-8") as f:
-        json.dump(scores, f, ensure_ascii=False, indent=2)
 
 
 @app.route("/")
@@ -124,8 +109,7 @@ def submit_exam():
         for d, s in domain_stats.items() if s["total"] > 0
     ]
 
-    scores = load_scores()
-    scores.append({
+    store.add_score({
         "player": player,
         "date": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "correct": correct_count,
@@ -134,7 +118,6 @@ def submit_exam():
         "scaled": scaled,
         "passed": passed,
     })
-    save_scores(scores)
 
     return jsonify({
         "player": player,
@@ -151,7 +134,7 @@ def submit_exam():
 
 @app.route("/api/scores")
 def scores():
-    all_scores = load_scores()
+    all_scores = store.load_scores()
     # Mejores 10 por porcentaje (desempate: más preguntas, más reciente).
     top = sorted(all_scores, key=lambda s: (-s["pct"], -s["total"], s["date"]))[:10]
     recent = sorted(all_scores, key=lambda s: s["date"], reverse=True)[:10]

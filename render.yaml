@@ -8,8 +8,12 @@ services:
     buildCommand: pip install -r requirements.txt
     # 1 worker: los exámenes en curso viven en memoria del proceso; con varios
     # workers un examen iniciado en uno no se hallaría al enviarlo en otro.
-    startCommand: gunicorn app:app --workers 1 --timeout 60
+    startCommand: gunicorn app:app --workers 1 --timeout 60 --bind 0.0.0.0:$PORT
     autoDeploy: true
     envVars:
       - key: PYTHON_VERSION
         value: "3.12.6"
+      # Cadena de conexión a Postgres (Neon). sync:false => Render la pide en el
+      # panel y no se guarda en el repo. Sin ella, la app usa el JSON efímero.
+      - key: DATABASE_URL
+        sync: false
