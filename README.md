@@ -6,7 +6,7 @@ el análisis de resultados; el navegador solo pinta el juego.
 
 ## Características
 
-- **Banco de 167 preguntas** alineadas al temario oficial **CCNA 200-301 v1.1**,
+- **Banco de 212 preguntas** alineadas al temario oficial **CCNA 200-301 v1.1**,
   cubriendo los 6 dominios (incluye temas nuevos de la v1.1 como IA/ML en operaciones
   de red, Terraform y overlay/underlay/fabric).
 - **Dos modos de temario**: examen **general** (mezcla los 6 dominios) o **por tópico**
@@ -74,7 +74,7 @@ ni configurar nada.
 
 ```
 app.py              # servidor Flask: sesiones de examen, calificación, historial
-questions.py        # banco de 167 preguntas (dominio, opciones, correcta, explicación)
+questions.py        # banco de 212 preguntas (dominio, opciones, correcta, explicación)
 templates/index.html
 static/style.css    # tema pixel art
 static/game.js      # navegación del examen y render de resultados
