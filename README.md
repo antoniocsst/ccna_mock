@@ -9,13 +9,16 @@ el análisis de resultados; el navegador solo pinta el juego.
 - **Banco de 100 preguntas esenciales** distribuidas según los pesos del blueprint oficial:
   Fundamentos de Red (20), Acceso a la Red (20), Conectividad IP (25), Servicios IP (10),
   Seguridad (15) y Automatización (10).
+- **Dos modos**: examen **general** (mezcla los 6 dominios) o **por tópico** (practica
+  un solo dominio); la cantidad de preguntas se ajusta a lo disponible en cada caso.
 - **Exámenes que varían**: cada intento toma una muestra aleatoria (10 / 25 / 50 / 100
   preguntas) y además baraja el orden de las opciones.
 - **Puntaje estilo Cisco**: escala 0–1000 con corte de aprobación en 825.
 - **Temporizador** proporcional (90 s por pregunta) con envío automático al agotarse.
 - **Análisis al finalizar**: desglose por dominio y revisión pregunta por pregunta con la
   respuesta correcta y su explicación (filtrable por correctas/falladas).
-- **Registro de puntajes** persistente en `scores.json` con tabla de high scores.
+- **Registro de puntajes** persistente con tabla de high scores y estadísticas globales
+  en la portada (intentos, jugadores y aprobados reales).
 - **Diseño pixel art**: CRT scanlines, confetti pixelado al aprobar, animaciones amigables
   y atajos de teclado (A–D para responder, ← → para navegar).
 

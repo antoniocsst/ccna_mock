@@ -34,15 +34,33 @@
         <input id="player-name" class="pixel-input" type="text" maxlength="12"
                placeholder="AAA" autocomplete="off" spellcheck="false">
 
+        <label class="form-label">MODO</label>
+        <div class="mode-picker" role="radiogroup" aria-label="Modo de examen">
+          <button class="mode-btn selected" data-mode="general">&#9733; EXAMEN GENERAL</button>
+          <button class="mode-btn" data-mode="topic">&#9636; POR TÓPICO</button>
+        </div>
+
+        <div id="topic-block" class="topic-block hidden">
+          <label class="form-label">TÓPICO</label>
+          <div id="topic-picker" class="topic-picker" role="radiogroup" aria-label="Tópico"></div>
+        </div>
+
         <label class="form-label">PREGUNTAS</label>
-        <div class="count-picker" role="radiogroup" aria-label="Cantidad de preguntas">
+        <div class="count-picker" id="count-picker" role="radiogroup" aria-label="Cantidad de preguntas">
           <button class="count-btn" data-count="10">10</button>
           <button class="count-btn selected" data-count="25">25</button>
           <button class="count-btn" data-count="50">50</button>
           <button class="count-btn" data-count="100">100</button>
         </div>
+        <p id="count-hint" class="count-hint"></p>
 
         <button id="btn-start" class="pixel-btn btn-primary blink-slow">&#9654; PRESS START</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-chip"><span id="stat-attempts" class="stat-num">0</span><span class="stat-lbl">INTENTOS</span></div>
+        <div class="stat-chip"><span id="stat-players" class="stat-num">0</span><span class="stat-lbl">JUGADORES</span></div>
+        <div class="stat-chip"><span id="stat-passed" class="stat-num">0</span><span class="stat-lbl">APROBADOS</span></div>
       </div>
 
       <div class="pixel-box highscores">

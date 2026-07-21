@@ -5,7 +5,19 @@
   "use strict";
 
   const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
   const OPTION_KEYS = ["A", "B", "C", "D", "E", "F"];
+
+  // Acento de color por dominio: unifica HUD, tópicos y análisis.
+  const DOMAIN_COLORS = {
+    "Fundamentos de Red": "var(--cyan)",
+    "Acceso a la Red": "var(--green)",
+    "Conectividad IP": "var(--purple)",
+    "Servicios IP": "var(--yellow)",
+    "Seguridad": "var(--red)",
+    "Automatización": "var(--orange)",
+  };
+  const domainColor = (d) => DOMAIN_COLORS[d] || "var(--cyan)";
 
   const state = {
     examId: null,
@@ -17,7 +29,11 @@
     timerId: null,
     player: "ANON",
     count: 25,
+    mode: "general",   // 'general' | 'topic'
+    domain: null,      // nombre del dominio cuando mode === 'topic'
     review: [],
+    domains: [],       // [{name, count}] desde /api/meta
+    total: 100,
   };
 
   /* ---------- navegación entre pantallas ---------- */
@@ -27,19 +43,123 @@
     window.scrollTo({ top: 0 });
   }
 
-  /* ---------- pantalla de inicio ---------- */
-  document.querySelectorAll(".count-picker .count-btn").forEach((btn) => {
+  /* ---------- pantalla de inicio: modo / tópico / cantidad ---------- */
+  // Máximo de preguntas disponible según el modo/tópico seleccionado.
+  function maxAvailable() {
+    if (state.mode === "topic" && state.domain) {
+      const d = state.domains.find((x) => x.name === state.domain);
+      return d ? d.count : state.total;
+    }
+    return state.total;
+  }
+
+  // Habilita/inhabilita botones de cantidad según lo disponible y ajusta la
+  // selección si la actual ya no cabe.
+  function refreshCountButtons() {
+    const max = maxAvailable();
+    const btns = $$("#count-picker .count-btn");
+    let selectedValid = false;
+    btns.forEach((b) => {
+      const val = parseInt(b.dataset.count, 10);
+      const disabled = val > max;
+      b.disabled = disabled;
+      b.classList.toggle("disabled", disabled);
+      if (b.classList.contains("selected")) {
+        if (disabled) b.classList.remove("selected");
+        else selectedValid = true;
+      }
+    });
+    if (!selectedValid) {
+      // elige el mayor valor que quepa
+      const fits = btns.filter((b) => parseInt(b.dataset.count, 10) <= max);
+      const pick = fits[fits.length - 1] || btns[0];
+      pick.classList.add("selected");
+      state.count = Math.min(parseInt(pick.dataset.count, 10), max);
+    }
+    const hint = $("#count-hint");
+    if (state.mode === "topic" && state.domain) {
+      hint.textContent = `» ${state.domain}: ${max} preguntas disponibles`;
+    } else {
+      hint.textContent = `» banco completo: ${state.total} preguntas`;
+    }
+  }
+
+  $$("#count-picker .count-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".count-picker .count-btn").forEach((b) => b.classList.remove("selected"));
+      if (btn.disabled) return;
+      $$("#count-picker .count-btn").forEach((b) => b.classList.remove("selected"));
       btn.classList.add("selected");
-      state.count = parseInt(btn.dataset.count, 10);
+      state.count = Math.min(parseInt(btn.dataset.count, 10), maxAvailable());
     });
   });
+
+  // Selector de modo (general vs por tópico)
+  $$(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $$(".mode-btn").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+      state.mode = btn.dataset.mode;
+      const topicBlock = $("#topic-block");
+      if (state.mode === "topic") {
+        topicBlock.classList.remove("hidden");
+        if (!state.domain && state.domains.length) selectTopic(state.domains[0].name);
+      } else {
+        topicBlock.classList.add("hidden");
+        state.domain = null;
+      }
+      refreshCountButtons();
+    });
+  });
+
+  function selectTopic(name) {
+    state.domain = name;
+    $$("#topic-picker .topic-btn").forEach((b) =>
+      b.classList.toggle("selected", b.dataset.domain === name));
+    refreshCountButtons();
+  }
+
+  // Construye los botones de tópico desde /api/meta
+  async function loadMeta() {
+    try {
+      const data = await (await fetch("/api/meta")).json();
+      state.domains = data.domains;
+      state.total = data.total;
+      const picker = $("#topic-picker");
+      picker.innerHTML = "";
+      data.domains.forEach((d) => {
+        const b = document.createElement("button");
+        b.className = "topic-btn";
+        b.dataset.domain = d.name;
+        b.style.setProperty("--accent", domainColor(d.name));
+        b.innerHTML = `<span class="topic-dot"></span><span class="topic-name">${escapeHtml(d.name)}</span><span class="topic-count">${d.count}</span>`;
+        b.addEventListener("click", () => selectTopic(d.name));
+        picker.appendChild(b);
+      });
+      refreshCountButtons();
+    } catch (_) { /* meta no disponible: se queda el modo general */ }
+  }
+
+  function animateCount(el, target) {
+    const start = parseInt(el.textContent, 10) || 0;
+    if (start === target) return;
+    const steps = 18;
+    let i = 0;
+    const tick = () => {
+      i++;
+      el.textContent = Math.round(start + (target - start) * (i / steps));
+      if (i < steps) setTimeout(tick, 25);
+      else el.textContent = target;
+    };
+    tick();
+  }
 
   async function loadHighScores() {
     try {
       const res = await fetch("/api/scores");
       const data = await res.json();
+      animateCount($("#stat-attempts"), data.attempts || 0);
+      animateCount($("#stat-players"), data.players || 0);
+      animateCount($("#stat-passed"), data.passed || 0);
       const list = $("#highscore-list");
       list.innerHTML = "";
       if (!data.top.length) {
@@ -49,8 +169,9 @@
       data.top.forEach((s, i) => {
         const li = document.createElement("li");
         const passCls = s.passed ? "" : " fail";
+        const medal = ["🥇", "🥈", "🥉"][i] || `${i + 1}.`;
         li.innerHTML =
-          `<span><span class="score-rank">${i + 1}.</span>${escapeHtml(s.player)}</span>` +
+          `<span><span class="score-rank">${medal}</span>${escapeHtml(s.player)}</span>` +
           `<span class="score-val${passCls}">${s.scaled}/1000 (${s.correct}/${s.total})</span>`;
         list.appendChild(li);
       });
@@ -68,7 +189,10 @@
       const res = await fetch("/api/exam/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ count: state.count }),
+        body: JSON.stringify({
+          count: state.count,
+          domain: state.mode === "topic" ? state.domain : null,
+        }),
       });
       const data = await res.json();
       state.examId = data.exam_id;
@@ -141,7 +265,9 @@
     card.classList.add("slide");
 
     $("#hud-progress").textContent = `${state.current + 1}/${state.questions.length}`;
-    $("#hud-domain").textContent = q.d.toUpperCase();
+    const hudDomain = $("#hud-domain");
+    hudDomain.textContent = q.d.toUpperCase();
+    hudDomain.style.color = domainColor(q.d);
     $("#question-text").textContent = q.q;
 
     const opts = $("#options");
@@ -258,7 +384,7 @@
       }
       item.innerHTML =
         `<span class="review-tag">${r.ok ? "CORRECTA" : "INCORRECTA"}</span>` +
-        `<span class="review-domain"> ${escapeHtml(r.d)}</span>` +
+        `<span class="review-domain" style="color:${domainColor(r.d)}"> ${escapeHtml(r.d)}</span>` +
         `<p class="review-q">${i + 1}. ${escapeHtml(r.q)}</p>` +
         answersHtml +
         `<p class="review-exp">&#128161; ${escapeHtml(r.e)}</p>`;
@@ -304,5 +430,6 @@
     }[c]));
   }
 
+  loadMeta();
   loadHighScores();
 })();

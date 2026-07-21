@@ -33,14 +33,36 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/api/meta")
+def meta():
+    """Dominios disponibles con su número de preguntas (para el selector por tópico)."""
+    counts = {d: 0 for d in DOMAINS}
+    for q in QUESTIONS:
+        counts[q["d"]] = counts.get(q["d"], 0) + 1
+    return jsonify({
+        "domains": [{"name": d, "count": counts[d]} for d in DOMAINS],
+        "total": len(QUESTIONS),
+    })
+
+
 @app.route("/api/exam/start", methods=["POST"])
 def start_exam():
     data = request.get_json(silent=True) or {}
-    count = data.get("count", 25)
-    if count not in (10, 25, 50, 100):
-        count = 25
 
-    picked = random.sample(QUESTIONS, min(count, len(QUESTIONS)))
+    # Tópico opcional: si es un dominio válido, el examen sale solo de él.
+    domain = data.get("domain")
+    if domain not in DOMAINS:
+        domain = None
+    pool = [q for q in QUESTIONS if q["d"] == domain] if domain else QUESTIONS
+
+    # Cantidad: se ajusta al tamaño disponible del pool (1..len(pool)).
+    try:
+        count = int(data.get("count", 25))
+    except (TypeError, ValueError):
+        count = 25
+    count = max(1, min(count, len(pool)))
+
+    picked = random.sample(pool, count)
     exam_questions = []
     for q in picked:
         order = list(range(len(q["o"])))
@@ -61,6 +83,7 @@ def start_exam():
 
     return jsonify({
         "exam_id": exam_id,
+        "domain": domain,           # None => examen general
         "time_limit": len(exam_questions) * SECONDS_PER_QUESTION,
         "questions": [
             {"d": q["d"], "q": q["q"], "o": q["o"]} for q in exam_questions
@@ -138,7 +161,15 @@ def scores():
     # Mejores 10 por porcentaje (desempate: más preguntas, más reciente).
     top = sorted(all_scores, key=lambda s: (-s["pct"], -s["total"], s["date"]))[:10]
     recent = sorted(all_scores, key=lambda s: s["date"], reverse=True)[:10]
-    return jsonify({"top": top, "recent": recent, "attempts": len(all_scores)})
+    players = len({s.get("player", "ANON") for s in all_scores})
+    passed = sum(1 for s in all_scores if s.get("passed"))
+    return jsonify({
+        "top": top,
+        "recent": recent,
+        "attempts": len(all_scores),
+        "players": players,
+        "passed": passed,
+    })
 
 
 if __name__ == "__main__":
