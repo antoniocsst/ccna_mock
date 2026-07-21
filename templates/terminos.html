@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Términos de Uso · {{ brand }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='6' width='12' height='6' fill='%2300e08f'/><rect x='5' y='3' width='6' height='3' fill='%2300e08f'/></svg>">
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="stars" aria-hidden="true"></div>
+
+  <main id="app" class="legal-page">
+    <a href="{{ url_for('index') }}" class="pixel-btn btn-ghost legal-back">&#9664; VOLVER</a>
+    <h1 class="legal-title">TÉRMINOS DE USO</h1>
+    <p class="legal-updated">Última actualización: {{ legal_updated }}</p>
+
+    <div class="pixel-box legal-box">
+      <h2>1. Objeto</h2>
+      <p><strong>{{ brand }}</strong> ofrece de forma gratuita cuestionarios de práctica para
+      ayudar a estudiar el examen CCNA 200-301. Al usar el sitio aceptas estos términos.</p>
+
+      <h2>2. Carácter educativo, sin garantías</h2>
+      <p>El contenido tiene fines exclusivamente de estudio. Aunque procuramos que sea preciso
+      y esté alineado con el temario oficial, <strong>no garantizamos que las preguntas
+      aparezcan en el examen real ni que aprobar aquí asegure aprobar la certificación.</strong>
+      El material se ofrece "tal cual", sin garantías de ningún tipo.</p>
+
+      <h2>3. Propiedad intelectual</h2>
+      <p>Las preguntas y explicaciones son material original de {{ brand }}. No reproducimos
+      exámenes reales ni contenido de terceros. No está permitido copiar el banco de preguntas
+      para su redistribución comercial sin autorización.</p>
+
+      <h2>4. Marcas de terceros</h2>
+      <p>CCNA® y Cisco® son marcas registradas de Cisco Systems, Inc. {{ brand }} es un proyecto
+      independiente y <strong>no está afiliado, patrocinado ni avalado por Cisco Systems, Inc.</strong>
+      Su uso aquí es meramente descriptivo (uso nominativo justo).</p>
+
+      <h2>5. Uso aceptable</h2>
+      <p>Te comprometes a no intentar dañar, sobrecargar o vulnerar el sitio, ni a usarlo con
+      fines ilícitos. Los apodos ofensivos podrán eliminarse del ranking.</p>
+
+      <h2>6. Publicidad</h2>
+      <p>El sitio puede mostrar anuncios de terceros (Google AdSense) para financiar su
+      operación gratuita. No controlamos el contenido de dichos anuncios.</p>
+
+      <h2>7. Limitación de responsabilidad</h2>
+      <p>No nos hacemos responsables de decisiones tomadas con base en el contenido ni de
+      interrupciones del servicio. Úsalo como complemento de tu estudio, no como única fuente.</p>
+
+      <h2>8. Cambios</h2>
+      <p>Podemos actualizar estos términos; la fecha de arriba indica la última revisión.</p>
+
+      <h2>9. Contacto</h2>
+      <p>Dudas o solicitudes: <strong>{{ contact_email }}</strong></p>
+    </div>
+
+    <nav class="legal-links">
+      <a href="{{ url_for('privacidad') }}">Privacidad</a> ·
+      <a href="{{ url_for('index') }}">Inicio</a> ·
+      <span>&copy; 2026 {{ brand }}</span>
+    </nav>
+  </main>
+</body>
+</html>

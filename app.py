@@ -19,6 +19,29 @@ app = Flask(__name__)
 PASSING_PCT = 82.5          # aproximación al corte real del CCNA (825/1000)
 SECONDS_PER_QUESTION = 90   # ~120 min para ~100 preguntas en el examen real
 
+# ------------------------------------------------------------------ #
+# Marca y datos legales (cámbialos aquí en un solo lugar)
+# ------------------------------------------------------------------ #
+BRAND = "Datamock Networking"
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "[TU-EMAIL]")
+LEGAL_UPDATED = "julio de 2026"
+# ID de cliente de Google AdSense (p. ej. "ca-pub-1234567890123456").
+# Si está vacío, se muestran espacios reservados en lugar de anuncios reales.
+ADSENSE_CLIENT = os.environ.get("ADSENSE_CLIENT", "")
+
+
+def tpl_ctx(**extra):
+    """Contexto común (marca, contacto, anuncios) para todas las plantillas."""
+    ctx = dict(
+        brand=BRAND,
+        contact_email=CONTACT_EMAIL,
+        legal_updated=LEGAL_UPDATED,
+        adsense_client=ADSENSE_CLIENT,
+    )
+    ctx.update(extra)
+    return ctx
+
+
 # Prepara el backend de puntajes: crea la tabla si se usa PostgreSQL
 # (DATABASE_URL); si no, se usará el archivo JSON local.
 store.init()
@@ -30,7 +53,27 @@ ACTIVE_EXAMS = {}
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("index.html", **tpl_ctx())
+
+
+@app.route("/privacidad")
+def privacidad():
+    return render_template("privacidad.html", **tpl_ctx())
+
+
+@app.route("/terminos")
+def terminos():
+    return render_template("terminos.html", **tpl_ctx())
+
+
+@app.route("/ads.txt")
+def ads_txt():
+    """Requerido por AdSense para autorizar la venta de tu inventario.
+    Rellena tu publisher ID en la variable de entorno ADSENSE_CLIENT."""
+    if ADSENSE_CLIENT:
+        pub = ADSENSE_CLIENT.replace("ca-", "")
+        return f"google.com, {pub}, DIRECT, f08c47fec0942fa0\n", 200, {"Content-Type": "text/plain"}
+    return "# Define ADSENSE_CLIENT para generar ads.txt\n", 200, {"Content-Type": "text/plain"}
 
 
 @app.route("/api/meta")

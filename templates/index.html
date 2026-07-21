@@ -3,16 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CCNA MOCK EXAM</title>
+  <title>{{ brand }} · Mock Exam CCNA 200-301</title>
+  <meta name="description" content="{{ brand }}: simulador gratuito de examen de práctica para el CCNA 200-301 v1.1, con preguntas por tópico, modo práctica y análisis de resultados.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='6' width='12' height='6' fill='%2300e08f'/><rect x='5' y='3' width='6' height='3' fill='%2300e08f'/></svg>">
+  {% if adsense_client %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_client }}" crossorigin="anonymous"></script>
+  {% endif %}
 </head>
 <body>
   <div class="scanlines" aria-hidden="true"></div>
   <div class="stars" aria-hidden="true"></div>
+
+  {% if not adsense_client %}
+  <!-- Rieles de anuncios (placeholders). Cuando definas ADSENSE_CLIENT se ocultan
+       y Google Auto Ads coloca los anuncios automáticamente. -->
+  <aside class="ad-rail ad-rail-left" aria-hidden="true"><span>ESPACIO<br>PUBLICITARIO</span></aside>
+  <aside class="ad-rail ad-rail-right" aria-hidden="true"><span>ESPACIO<br>PUBLICITARIO</span></aside>
+  {% endif %}
 
   <main id="app">
 
@@ -26,8 +37,8 @@
         <div class="antenna antenna-r"></div>
       </div>
 
-      <h1 class="title">CCNA<br><span class="title-sub">MOCK EXAM</span></h1>
-      <p class="tagline">&gt;&gt; 100 preguntas esenciales 200-301 &lt;&lt;</p>
+      <h1 class="title">DATAMOCK<br><span class="title-sub">NETWORKING</span></h1>
+      <p class="tagline">&gt;&gt; 212 preguntas esenciales 200-301 &lt;&lt;</p>
 
       <div class="pixel-box start-form">
         <label class="form-label" for="player-name">JUGADOR</label>
@@ -74,7 +85,21 @@
         <h2 class="box-title">&#9733; HIGH SCORES &#9733;</h2>
         <ol id="highscore-list" class="score-list"><li class="score-empty">SIN REGISTROS...</li></ol>
       </div>
-      <p class="footer-note">aprobado &ge; 825/1000 &middot; hecho con &#9829; para futuros CCNA</p>
+
+      <footer class="site-footer">
+        <p class="footer-note">aprobado &ge; 825/1000 &middot; hecho con &#9829; para futuros CCNA</p>
+        <p class="disclaimer">
+          {{ brand }} es un proyecto independiente de estudio y <strong>no está afiliado,
+          asociado ni avalado por Cisco Systems, Inc.</strong> CCNA&reg; y Cisco&reg; son
+          marcas registradas de Cisco Systems, Inc. Las preguntas son material de práctica
+          original y no reproducen exámenes reales.
+        </p>
+        <nav class="legal-links">
+          <a href="{{ url_for('privacidad') }}">Privacidad</a> ·
+          <a href="{{ url_for('terminos') }}">Términos</a> ·
+          <span>&copy; 2026 {{ brand }}</span>
+        </nav>
+      </footer>
     </section>
 
     <!-- ============ PANTALLA DE EXAMEN ============ -->
@@ -138,6 +163,13 @@
     </section>
 
   </main>
+
+  <div id="cookie-banner" class="cookie-banner hidden">
+    <p>Usamos cookies propias y de terceros (por ejemplo, para anuncios y estadísticas)
+       para mantener el sitio gratuito. Consulta la
+       <a href="{{ url_for('privacidad') }}">política de privacidad</a>.</p>
+    <button id="cookie-accept" class="pixel-btn btn-primary">ACEPTAR</button>
+  </div>
 
   <script src="{{ url_for('static', filename='game.js') }}"></script>
 </body>

@@ -70,12 +70,40 @@ una base de datos PostgreSQL gratuita (por ejemplo [Neon](https://neon.tech)):
 archivo `scores.json` local. Así, en tu computadora sigue funcionando sin instalar
 ni configurar nada.
 
+## Marca, aviso legal y publicidad
+
+El sitio se llama **Datamock Networking** (marca propia, para no depender de la marca
+"CCNA" de Cisco). Todo es configurable en un solo lugar, al inicio de `app.py`:
+
+- `BRAND` — nombre visible en footer y páginas legales.
+- `CONTACT_EMAIL` — correo de contacto (por defecto el placeholder `[TU-EMAIL]`; también
+  se puede fijar con la variable de entorno `CONTACT_EMAIL`). **Reemplázalo antes de publicar.**
+- `ADSENSE_CLIENT` — tu publisher ID de Google AdSense (variable de entorno, p. ej.
+  `ca-pub-XXXXXXXXXXXXXXXX`).
+
+Incluye lo que AdSense pide para aprobar un sitio:
+
+- **Aviso de no afiliación** a Cisco en el footer (uso nominativo de la marca CCNA®).
+- **/privacidad** y **/terminos** — política de privacidad (con la cláusula de Google
+  AdSense) y términos de uso. *Revisa estos textos con criterio legal para tu país; son
+  una base razonable, no asesoría jurídica.*
+- **Banner de consentimiento de cookies** (recuerda la preferencia en el navegador).
+- **/ads.txt** — se genera automáticamente a partir de `ADSENSE_CLIENT`.
+- **Espacios de anuncios** laterales reservados; cuando definas `ADSENSE_CLIENT` se
+  cargan los **Auto Ads** de Google y los placeholders desaparecen.
+
+Para activar anuncios: crea tu cuenta en Google AdSense, obtén el publisher ID y añádelo
+en Render como variable de entorno `ADSENSE_CLIENT`. (Recuerda que AdSense exige un
+dominio propio y tráfico real para aprobarte.)
+
 ## Estructura
 
 ```
 app.py              # servidor Flask: sesiones de examen, calificación, historial
 questions.py        # banco de 212 preguntas (dominio, opciones, correcta, explicación)
 templates/index.html
+templates/privacidad.html  # política de privacidad (AdSense/cookies)
+templates/terminos.html    # términos de uso
 static/style.css    # tema pixel art
 static/game.js      # navegación del examen y render de resultados
 store.py            # almacenamiento de puntajes: PostgreSQL o JSON según entorno

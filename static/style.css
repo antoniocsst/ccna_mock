@@ -276,6 +276,52 @@ body {
   to { transform: translateY(110vh) rotate(540deg); opacity: .6; }
 }
 
+/* ---- rieles de anuncios (placeholders) ---- */
+.ad-rail {
+  position: fixed; top: 90px; width: 160px; min-height: 600px;
+  border: var(--px) dashed var(--border); background: rgba(35,36,77,.35);
+  display: none; align-items: center; justify-content: center; z-index: 5;
+  color: var(--dim); font-size: .5rem; text-align: center; line-height: 2;
+}
+.ad-rail-left { left: 16px; }
+.ad-rail-right { right: 16px; }
+/* solo hay espacio para los rieles en pantallas anchas */
+@media (min-width: 1300px) { .ad-rail { display: flex; } }
+
+/* ---- footer + aviso legal ---- */
+.site-footer { margin-top: 30px; text-align: center; }
+.disclaimer { font-size: .5rem; line-height: 2; color: var(--dim); max-width: 640px; margin: 14px auto 0; }
+.disclaimer strong { color: var(--text); }
+.legal-links { font-size: .52rem; color: var(--dim); margin-top: 16px; }
+.legal-links a { color: var(--cyan); text-decoration: none; }
+.legal-links a:hover { color: var(--green); text-decoration: underline; }
+
+/* ---- banner de cookies ---- */
+.cookie-banner {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  background: var(--panel); border-top: var(--px) solid var(--border);
+  padding: 14px 18px; display: flex; align-items: center; gap: 16px;
+  flex-wrap: wrap; justify-content: center;
+}
+.cookie-banner.hidden { display: none; }
+.cookie-banner p { font-size: .55rem; line-height: 1.9; color: var(--dim); max-width: 680px; }
+.cookie-banner a { color: var(--cyan); }
+.cookie-banner .pixel-btn { font-size: .6rem; padding: 10px 16px; box-shadow: 0 4px 0 #0a6b47; }
+
+/* ---- páginas legales ---- */
+.legal-page { max-width: 780px; }
+.legal-back { display: inline-block; font-size: .6rem; padding: 10px 14px; margin-bottom: 20px; }
+.legal-title { font-size: 1.3rem; color: var(--cyan); text-shadow: 3px 3px 0 #14508a; line-height: 1.5; }
+.legal-updated { font-size: .55rem; color: var(--dim); margin: 12px 0 4px; }
+.legal-box { line-height: 2.1; }
+.legal-box h2 { font-size: .72rem; color: var(--yellow); margin: 22px 0 10px; line-height: 1.6; }
+.legal-box p { font-size: .6rem; margin-bottom: 10px; color: var(--text); }
+.legal-box ul { font-size: .6rem; margin: 8px 0 8px 18px; }
+.legal-box li { margin-bottom: 8px; }
+.legal-box a { color: var(--cyan); }
+.legal-box strong { color: var(--green); }
+.legal-disclaimer { border-top: 2px dashed #35376b; padding-top: 12px; margin-top: 18px; color: var(--dim) !important; font-size: .54rem !important; }
+
 /* ---- responsive ---- */
 @media (max-width: 620px) {
   .title { font-size: 1.7rem; } .title-sub { font-size: 1.1rem; }
@@ -283,4 +329,5 @@ body {
   .dots { display: none; }
   .exam-nav { flex-direction: row; }
   .pixel-btn { font-size: .65rem; padding: 12px 12px; }
+  .legal-title { font-size: 1rem; }
 }

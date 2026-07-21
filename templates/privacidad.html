@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Política de Privacidad · {{ brand }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='6' width='12' height='6' fill='%2300e08f'/><rect x='5' y='3' width='6' height='3' fill='%2300e08f'/></svg>">
+</head>
+<body>
+  <div class="scanlines" aria-hidden="true"></div>
+  <div class="stars" aria-hidden="true"></div>
+
+  <main id="app" class="legal-page">
+    <a href="{{ url_for('index') }}" class="pixel-btn btn-ghost legal-back">&#9664; VOLVER</a>
+    <h1 class="legal-title">POLÍTICA DE PRIVACIDAD</h1>
+    <p class="legal-updated">Última actualización: {{ legal_updated }}</p>
+
+    <div class="pixel-box legal-box">
+      <p>En <strong>{{ brand }}</strong> ("el sitio") respetamos tu privacidad. Esta política
+      explica qué datos tratamos y con qué fin. El sitio es una herramienta gratuita de
+      práctica para el examen CCNA 200-301.</p>
+
+      <h2>1. Datos que recopilamos</h2>
+      <ul>
+        <li><strong>Apodo de jugador:</strong> el nombre corto que escribes para el ranking.
+          Puede ser un seudónimo; no necesitamos tu nombre real.</li>
+        <li><strong>Resultados de tus exámenes:</strong> puntaje, número de aciertos y fecha,
+          para mostrar el historial y la tabla de puntuaciones.</li>
+        <li><strong>Datos técnicos básicos:</strong> nuestro proveedor de alojamiento puede
+          registrar la dirección IP y el tipo de navegador con fines de seguridad y operación.</li>
+      </ul>
+      <p>No pedimos ni almacenamos contraseñas, correos ni datos de pago para jugar.</p>
+
+      <h2>2. Cookies y publicidad</h2>
+      <p>Usamos almacenamiento local del navegador para recordar tu preferencia de
+      consentimiento. Si el sitio muestra publicidad, se apoya en
+      <strong>Google AdSense</strong>, un servicio de terceros que puede usar cookies para
+      mostrar anuncios relevantes. Google, como proveedor externo, utiliza cookies para
+      publicar anuncios; puedes desactivar la publicidad personalizada en
+      <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">
+      Configuración de anuncios de Google</a> y conocer más en las
+      <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener">
+      políticas de socios de Google</a>.</p>
+
+      <h2>3. Uso de la información</h2>
+      <p>Usamos los datos únicamente para operar el juego (calcular puntajes y mostrar
+      rankings), mejorar el contenido y mantener el sitio en línea. No vendemos tus datos.</p>
+
+      <h2>4. Conservación y borrado</h2>
+      <p>Los puntajes se guardan mientras el ranking siga activo. Si quieres que eliminemos
+      un registro asociado a tu apodo, escríbenos y lo retiraremos.</p>
+
+      <h2>5. Menores</h2>
+      <p>El sitio no está dirigido a menores de 13 años y no recopila conscientemente sus datos.</p>
+
+      <h2>6. Tus derechos</h2>
+      <p>Puedes solicitar acceso, corrección o eliminación de la información asociada a tu
+      apodo escribiéndonos al contacto de abajo.</p>
+
+      <h2>7. Contacto</h2>
+      <p>Para cualquier consulta sobre privacidad: <strong>{{ contact_email }}</strong></p>
+
+      <p class="legal-disclaimer">{{ brand }} es un proyecto independiente y no está afiliado
+      ni avalado por Cisco Systems, Inc. CCNA® y Cisco® son marcas registradas de Cisco
+      Systems, Inc.</p>
+    </div>
+
+    <nav class="legal-links">
+      <a href="{{ url_for('terminos') }}">Términos</a> ·
+      <a href="{{ url_for('index') }}">Inicio</a> ·
+      <span>&copy; 2026 {{ brand }}</span>
+    </nav>
+  </main>
+</body>
+</html>

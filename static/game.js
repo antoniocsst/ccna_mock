@@ -505,6 +505,22 @@
     }[c]));
   }
 
+  /* ---------- consentimiento de cookies ---------- */
+  function initCookieConsent() {
+    const banner = $("#cookie-banner");
+    if (!banner) return;
+    try {
+      if (localStorage.getItem("dm_cookie_ok") === "1") return;
+    } catch (_) { /* almacenamiento no disponible */ }
+    banner.classList.remove("hidden");
+    const accept = $("#cookie-accept");
+    if (accept) accept.addEventListener("click", () => {
+      try { localStorage.setItem("dm_cookie_ok", "1"); } catch (_) {}
+      banner.classList.add("hidden");
+    });
+  }
+
+  initCookieConsent();
   loadMeta();
   loadHighScores();
 })();
