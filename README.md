@@ -28,6 +28,30 @@ python app.py
 
 Luego abre <http://127.0.0.1:5000> en tu navegador y pulsa **PRESS START**.
 
+## Publicarlo gratis en Render
+
+El proyecto ya trae `render.yaml` y `Procfile`, así que subirlo a
+[Render](https://render.com) es directo:
+
+1. Sube este repositorio a tu cuenta de GitHub (ya está en la rama del proyecto).
+2. En Render: **New → Blueprint**, conecta tu repo y selecciona la rama. Render lee
+   `render.yaml` y crea el servicio web automáticamente (plan **Free**).
+3. Espera al primer deploy. Quedará online en una URL tipo
+   `https://ccna-mock-exam.onrender.com` que puedes compartir.
+
+Alternativa manual (**New → Web Service**) si no usas el Blueprint:
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `gunicorn app:app --workers 1 --timeout 60`
+
+> ⚠️ **Sobre los puntajes:** en el plan gratuito el disco es efímero, así que
+> `scores.json` se reinicia cada vez que el servicio se duerme o se redespliega.
+> Es normal para empezar. Para conservar el historial de forma permanente hay que
+> mover los puntajes a una base de datos (paso siguiente del proyecto); la ruta del
+> archivo ya es configurable con la variable de entorno `SCORES_FILE`.
+
+> ℹ️ El plan Free "duerme" el servicio tras ~15 min sin uso; la primera visita
+> después puede tardar ~30 s en despertar. Es esperable.
+
 ## Estructura
 
 ```
@@ -37,4 +61,6 @@ templates/index.html
 static/style.css    # tema pixel art
 static/game.js      # navegación del examen y render de resultados
 scores.json         # historial de intentos (se crea automáticamente)
+render.yaml         # blueprint de despliegue en Render
+Procfile            # comando de arranque en producción (gunicorn)
 ```

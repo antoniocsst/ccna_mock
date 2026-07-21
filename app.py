@@ -16,7 +16,10 @@ from questions import QUESTIONS, DOMAINS
 
 app = Flask(__name__)
 
-SCORES_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scores.json")
+SCORES_FILE = os.environ.get(
+    "SCORES_FILE",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "scores.json"),
+)
 PASSING_PCT = 82.5          # aproximación al corte real del CCNA (825/1000)
 SECONDS_PER_QUESTION = 90   # ~120 min para ~100 preguntas en el examen real
 
@@ -156,4 +159,9 @@ def scores():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    # Ejecución local. En producción (Render) arranca gunicorn con 'app:app'.
+    # host/puerto configurables por entorno; PORT lo inyecta el hosting.
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", 5000))
+    debug = os.environ.get("FLASK_DEBUG", "1") == "1"
+    app.run(host=host, port=port, debug=debug)

@@ -1,0 +1,15 @@
+# Blueprint de despliegue para Render (https://render.com).
+# Con esto, al conectar el repo, Render configura el servicio automáticamente.
+services:
+  - type: web
+    name: ccna-mock-exam
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    # 1 worker: los exámenes en curso viven en memoria del proceso; con varios
+    # workers un examen iniciado en uno no se hallaría al enviarlo en otro.
+    startCommand: gunicorn app:app --workers 1 --timeout 60
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.6"
